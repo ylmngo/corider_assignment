@@ -1,5 +1,12 @@
 from core import app
+from flask import jsonify
+
 
 @app.route('/')
-def hello_world(): 
-    return "Hello World" 
+def ready(): 
+    resp = jsonify({
+        "status": "ready", 
+        "env": "dev"
+    }) 
+
+    return resp 
