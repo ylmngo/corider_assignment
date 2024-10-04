@@ -1,0 +1,161 @@
+{
+    "swagger": "2.0", 
+    "info": {
+        "title": "Access API", 
+        "version": "1.0.0"
+    }, 
+    "paths": {
+        "/": {
+            "get": {
+                "description": "Returns a message showing the status of the server.",
+                "prodcues": [
+                    "application/json"
+                ]
+            }
+        },
+        "/users": {
+            "get": {
+                "description": "Returns a list of all users", 
+                "prodcues": [
+                    "application/json"
+                ], 
+                "responses": {
+                    "200": {
+                        "description": "Succesfull operation"
+                    },
+                    "400": {
+                        "description": "Unable to return a list of users"
+                    }
+                }
+            },
+            "post": { 
+                "description": "Creates a new user", 
+                "consumes": [
+                    "application/json"
+                ],
+                "prodcues": [
+                    "application/json"
+                ],
+                "parameters": [
+                    {
+                        "name": "UserIn", 
+                        "in": "body", 
+                        "description": "user input to create a new user", 
+                        "required": "true", 
+                        "schema": {
+                            "$ref": "#/definitions/UserIn"
+                        }
+                    }
+                ] 
+            }
+        },
+        "users/{id}": { 
+            "get": { 
+                "description": "Returns the user with the specified id", 
+                "prodcues": [
+                    "application/json" 
+                ], 
+                "parameters": [
+                    {
+                        "name": "User ID", 
+                        "in": "path", 
+                        "description": "id of the user", 
+                        "required": "true" 
+                    }
+                ], 
+                "responses": {
+                    "200": {
+                        "description": "Succesfull operation"
+                    }, 
+                    "400": {
+                        "description": "Invalid user id"
+                    }
+                }
+            }, 
+            "put": {
+                "description": "Updates the credentials of the user with the specified id", 
+                "parameters": [
+                    {
+                        "name": "User ID", 
+                        "in": "path", 
+                        "description": "id of the user", 
+                        "required": "true" 
+                    }, 
+                    {
+                        "name": "UserUpdate", 
+                        "in": "body", 
+                        "description": "credentials of the user to be updated", 
+                        "required": "true",
+                        "schema": {
+                            "$ref": "#/definitions/UserUpdate"
+                        }
+                    }
+                ], 
+                "prodcues": [
+                    "application/json"
+                ], 
+                "responses": {
+                    "200": {
+                        "description": "Succesfull operation"
+                    }, 
+                    "400": {
+                        "description": "Invalid user id"
+                    }
+                }
+            },
+            "delete": {
+                "description": "Deletes the user with the specified id", 
+                "parameters": [
+                    {
+                        "name": "User ID", 
+                        "in": "path", 
+                        "description": "id of the user", 
+                        "required": "true" 
+                    }
+                ], 
+                "prodcues": [
+                    "application/json"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Succesfull operation"
+                    }, 
+                    "400": {
+                        "description": "Invalid user id"
+                    }
+                }
+            }
+        }
+    },
+    "definitions": {
+        "UserIn": {
+            "type": "object", 
+            "required": ["name", "email", "password"],
+            "properties": {
+                "name": {
+                    "type": "string" 
+                }, 
+                "email": {
+                    "type": "string"
+                }, 
+                "password": {
+                    "type": "string"
+                }
+            }
+        }, 
+        "UserUpdate": {
+            "type": "object", 
+            "properties": {
+                "name": {
+                    "type": "string" 
+                }, 
+                "email": {
+                    "type": "string"
+                }, 
+                "password": {
+                    "type": "string"
+                }
+            }
+        }
+    }
+}
