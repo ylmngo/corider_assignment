@@ -14,8 +14,8 @@ def create_user(payload):
         user.id = ObjectId(str(doc.inserted_id))
         resp = user.to_json()
         return resp
-    except ValueError as e: 
-        return Response("Invalid user data", status=400)
+    except Exception as e: 
+        return Response("Invalid user data: " + str(e), status=400)
     
 @user_resource.route('/', methods=["GET"], strict_slashes=True) 
 def list_users(): 
@@ -32,8 +32,8 @@ def get_user(id):
             raise Exception()
         resp = UserOut(**doc).to_json() 
         return resp 
-    except: 
-        return Response("Invalid user id", status=404)
+    except Exception as e: 
+        return Response("Invalid user id: " + str(e), status=404)
     
 @user_resource.route('/<id>', methods=["PUT"], strict_slashes=False) 
 @decorators.accept_payload
@@ -53,17 +53,15 @@ def update_user(payload, id):
             resp.email = updateQuery["email"]
         if "name" in updateQuery:         
             resp.name  = updateQuery["name"] 
-        if "password" in updateQuery: 
-            resp.password = updateQuery["password"]
         resp = resp.to_json()
         return resp 
-    except: 
-        return Response("Unable to update user", status=400)
+    except Exception as e: 
+        return Response("Unable to update user: " + str(e), status=400)
 
 @user_resource.route('/<id>', methods=["DELETE"], strict_slashes=False) 
 def delete_user(id): 
     try: 
         doc = db.Users.find_one_and_delete({"_id": ObjectId(id)})
         return Response("User Deleted", status=200)
-    except: 
-        return Response("Unable to delete user", status=400)
+    except Exception as e: 
+        return Response("Unable to delete user: " + str(e), status=400)

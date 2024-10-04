@@ -1,0 +1,29 @@
+version: "3.12"
+
+services:
+  web:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: corider:latest
+    ports:
+      - "5000:5000"
+    volumes:
+      - .:/app
+    networks:
+      - backend
+  mongodb:
+    image: mongo:6-jammy
+    ports:
+      - '27017:27017'
+    volumes:
+      - dbdata6:/data/db
+    networks:
+      - backend
+
+networks:
+  backend:
+volumes:
+  dbdata6:
+    
+      
