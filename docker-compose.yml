@@ -7,7 +7,7 @@ services:
       dockerfile: Dockerfile
     image: corider:latest
     ports:
-      - "5000:5000"
+      - "8000:8000"
     volumes:
       - .:/app
     networks:

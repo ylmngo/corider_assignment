@@ -9,6 +9,6 @@ RUN pip install -r requirements.txt
 ENV FLASK_APP=core/server.py
 ENV MONGO_URI="mongodb://mongodb:27017/Users"
 
-EXPOSE 5000 
+EXPOSE 8000 
 
-CMD ["flask", "run", "--host", "0.0.0.0"]
+CMD ["gunicorn", "--config", "gunicorn_config.py", "core.server:app"]
