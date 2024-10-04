@@ -1,10 +1,6 @@
-# TODO
+## Corider Assignment 
 
-[x] Create Flask application
-[x] Establish a Mongo DB Connection using PyMongo 
-[x] Create User routes 
-[ ] Dockerize the application 
-[ ] Use gunicorn to server the application 
+# Set up 
+Clone the Repository and run the following command
 
-
-    
+    docker compose up --build
