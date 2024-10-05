@@ -9,7 +9,7 @@ import os
 load_dotenv() 
 app = Flask(__name__) 
 
-connect(db='users', host='127.0.0.1', port=27017)
+connect(db='users', host=os.environ.get('MONGO_HOST'), port=int(os.environ.get("MONGO_PORT")))
 cache = Cache(config={'CACHE_TYPE': 'SimpleCache'})
 cache.init_app(app=app)
 

@@ -21,10 +21,12 @@ def create_user(payload):
 @cache.cached(timeout=50, query_string=True)
 def list_users(): 
     per_page = 5
-    
     page = int(request.args.get("page", 1))
-    resp = UserService.list_users(page, per_page=per_page)
-    return Response(response=resp.to_json(), status=200, mimetype="application/json")     
+    try:
+        resp = UserService.list_users(page, per_page=per_page)
+        return Response(response=resp.to_json(), status=200, mimetype="application/json")     
+    except Exception as e: 
+        return Response(response="Server error: " + str(e), status=400)
     
 @user_resource.route('/<id>', methods=["GET"], strict_slashes=True)
 @cache.memoize(timeout=50)
