@@ -1,21 +1,25 @@
 from flask import request, Response, jsonify
-from core import db
-from . import UserIn, UserOut, UserUpdate
 from bson import ObjectId, json_util
-import json 
-from . import user_resource, decorators
+from mongoengine import ValidationError
+from core import db
+from core.apis import decorators
+from . import user_resource
+from .schema import UserIn, UserOut, UserUpdate
+from core.models.users import Users
+
 
 @user_resource.route('/', methods=["POST"], strict_slashes=False)
 @decorators.accept_payload
 def create_user(payload): 
-    try: 
-        user = UserIn(**payload)
-        doc = db.Users.insert_one(user.to_bson())
-        user.id = ObjectId(str(doc.inserted_id))
-        resp = user.to_json()
-        return resp
+    try:
+        user = Users(**payload)
+        user.save()
+        return Response(user.to_json(), status=200, mimetype="application/json")
     except Exception as e: 
-        return Response("Invalid user data: " + str(e), status=400)
+        if e is ValidationError: 
+            return Response("Invalid user data", status=400) 
+        return Response("Server Error", status=500)
+    
     
 @user_resource.route('/', methods=["GET"], strict_slashes=True) 
 def list_users(): 
