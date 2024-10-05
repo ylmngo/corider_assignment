@@ -1,6 +1,6 @@
 from flask import request, Response, jsonify
 from core import db
-from core.models.users import UserIn, UserOut, UserUpdate
+from . import UserIn, UserOut, UserUpdate
 from bson import ObjectId, json_util
 import json 
 from . import user_resource, decorators
