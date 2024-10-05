@@ -3,15 +3,14 @@ from dotenv import load_dotenv
 from pymongo import MongoClient
 from mongoengine import connect 
 from flask_swagger_ui import get_swaggerui_blueprint
+from flask_caching import Cache
 import os 
 
 load_dotenv() 
 app = Flask(__name__) 
 
 connect(db='users', host='127.0.0.1', port=27017)
-
-client = MongoClient(os.environ.get("MONGO_URI"))
-db = client.Users 
+cache = Cache(config={'CACHE_TYPE': 'SimpleCache'})
 
 
 SWAGGER_URL = "/swagger" 

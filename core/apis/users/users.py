@@ -1,7 +1,7 @@
 from flask import request, Response, jsonify
 from bson import ObjectId, json_util
 from mongoengine import ValidationError, DoesNotExist
-from core import db
+from core import db, cache
 from core.apis import decorators
 from .service import UserService
 from . import user_resource
@@ -22,11 +22,13 @@ def create_user(payload):
     
     
 @user_resource.route('/', methods=["GET"], strict_slashes=True) 
+@cache.cached(timeout=50)
 def list_users(): 
     resp = UserService.list_users()
     return Response(response=resp.to_json(), status=200, mimetype="application/json")     
     
 @user_resource.route('/<id>', methods=["GET"], strict_slashes=True)
+@cache.memoize(timeout=50)
 def get_user(id): 
     try: 
         resp = UserService.get_user_by_id(id=id)
