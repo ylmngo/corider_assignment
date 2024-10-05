@@ -11,7 +11,7 @@ app = Flask(__name__)
 
 connect(db='users', host='127.0.0.1', port=27017)
 cache = Cache(config={'CACHE_TYPE': 'SimpleCache'})
-
+cache.init_app(app=app)
 
 SWAGGER_URL = "/swagger" 
 API_URL="/static/swagger.json"

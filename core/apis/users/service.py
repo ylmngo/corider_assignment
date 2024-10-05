@@ -14,8 +14,8 @@ class UserService:
         return Users.objects.get(id=id)
     
     @staticmethod
-    def list_users(): 
-        users = Users.objects()
+    def list_users(page: int, per_page: int): 
+        users = Users.objects().order_by('name').skip(per_page*(page-1)).limit(per_page)
         return users
     
     @staticmethod
