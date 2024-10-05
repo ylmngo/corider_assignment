@@ -1,8 +1,9 @@
 from flask import request, Response, jsonify
 from bson import ObjectId, json_util
-from mongoengine import ValidationError
+from mongoengine import ValidationError, DoesNotExist
 from core import db
 from core.apis import decorators
+from .service import UserService
 from . import user_resource
 from .schema import UserIn, UserOut, UserUpdate
 from core.models.users import Users
@@ -12,60 +13,48 @@ from core.models.users import Users
 @decorators.accept_payload
 def create_user(payload): 
     try:
-        user = Users(**payload)
-        user.save()
-        return Response(user.to_json(), status=200, mimetype="application/json")
+        resp = UserService.create_user(payload=payload)
+        return Response(resp.to_json(), status=200, mimetype="application/json")
     except Exception as e: 
         if e is ValidationError: 
-            return Response("Invalid user data", status=400) 
-        return Response("Server Error", status=500)
+            return Response("Invalid user data: " + str(e), status=400) 
+        return Response("Server Error: " + str(e), status=500)
     
     
 @user_resource.route('/', methods=["GET"], strict_slashes=True) 
 def list_users(): 
-    docs = db.Users.find(projection={"password": 0})
-    resp = [UserOut(**doc).to_json() for doc in docs]
-    return resp
-
+    resp = UserService.list_users()
+    return Response(response=resp.to_json(), status=200, mimetype="application/json")     
     
 @user_resource.route('/<id>', methods=["GET"], strict_slashes=True)
 def get_user(id): 
     try: 
-        doc = db.Users.find_one({"_id": ObjectId(id)}, projection={"password": 0})
-        if not doc: 
-            raise Exception()
-        resp = UserOut(**doc).to_json() 
-        return resp 
+        resp = UserService.get_user_by_id(id=id)
+        return Response(response=resp.to_json(), status=200, mimetype="application/json")
     except Exception as e: 
-        return Response("Invalid user id: " + str(e), status=404)
+        return Response("Invalid user id", status=404)
     
 @user_resource.route('/<id>', methods=["PUT"], strict_slashes=False) 
 @decorators.accept_payload
 def update_user(payload, id): 
-    updateQuery = {} 
-    if "email" in payload: 
-        updateQuery["email"] = payload["email"]
-    if "name" in payload: 
-        updateQuery["name"] = payload["name"]
-    if "password" in payload: 
-        updateQuery["password"] = payload["password"]
-    
-    try: 
-        doc = db.Users.find_one_and_update({"_id": ObjectId(id)}, {"$set": updateQuery})
-        resp = UserOut(**doc)
-        if "email" in updateQuery: 
-            resp.email = updateQuery["email"]
-        if "name" in updateQuery:         
-            resp.name  = updateQuery["name"] 
-        resp = resp.to_json()
-        return resp 
-    except Exception as e: 
+    try:
+        user = UserService.get_user_by_id(id=id)
+        query = UserService.validate_query(payload=payload) 
+        user.update(**query)
+        return Response(response=user.to_json(), status=200, mimetype="application/json")
+    except Exception as e:  
+        if e is DoesNotExist:
+            return Response("Invalid user id", status=404)
         return Response("Unable to update user: " + str(e), status=400)
+        
 
 @user_resource.route('/<id>', methods=["DELETE"], strict_slashes=False) 
 def delete_user(id): 
     try: 
-        doc = db.Users.find_one_and_delete({"_id": ObjectId(id)})
-        return Response("User Deleted", status=200)
+        user = UserService.get_user_by_id(id=id)
+        user.delete()
+        return Response("User succesfully deleted", status=200)
     except Exception as e: 
+        if e is DoesNotExist: 
+            return Response("Invalid user id", status=404)
         return Response("Unable to delete user: " + str(e), status=400)

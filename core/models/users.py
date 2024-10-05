@@ -7,6 +7,3 @@ class Users(Document):
 
     meta = {'db-alias': 'user-db-alias', 'collection': 'users'}  
 
-    @staticmethod
-    def getById(id): 
-        return Users.objects.get(id=id)
