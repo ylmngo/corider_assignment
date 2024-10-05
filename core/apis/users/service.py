@@ -15,7 +15,7 @@ class UserService:
     
     @staticmethod
     def list_users(page: int, per_page: int): 
-        users = Users.objects().order_by('name').skip(per_page*(page-1)).limit(per_page)
+        users = [user.to_mongo().to_dict() for user in Users.objects().order_by('name').skip(per_page*(page-1)).limit(per_page)]
         return users
     
     @staticmethod
@@ -29,5 +29,8 @@ class UserService:
             query["password"] = payload["password"]
         return query
     
+    @staticmethod
+    def get_collection_len(): 
+        return Users.objects().count() 
     
     

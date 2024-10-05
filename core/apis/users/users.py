@@ -1,9 +1,11 @@
-from flask import request, Response
-from mongoengine import ValidationError, DoesNotExist
+from flask import request, Response, url_for
+from mongoengine import ValidationError, DoesNotExist 
 from core import cache
 from core.apis import decorators
 from .service import UserService
 from . import user_resource
+from bson import json_util
+import json
 
 @user_resource.route('/', methods=["POST"], strict_slashes=False)
 @decorators.accept_payload
@@ -22,9 +24,35 @@ def create_user(payload):
 def list_users(): 
     per_page = 5
     page = int(request.args.get("page", 1))
+
     try:
-        resp = UserService.list_users(page, per_page=per_page)
-        return Response(response=resp.to_json(), status=200, mimetype="application/json")     
+        users = UserService.list_users(page, per_page=per_page)
+        user_count = UserService.get_collection_len()
+        
+        links = {
+            "self": {"href": url_for(".list_users", page=page, _external=True)},
+            "last": {
+                "href": url_for(
+                    ".list_users", page=(user_count // per_page) + 1, _external=True
+                )
+            },
+        }
+        if page > 1:
+            links["prev"] = {
+                "href": url_for(".list_users", page=page - 1, _external=True)
+            }
+        if page - 1 < (user_count // per_page):
+            links["next"] = {
+                "href": url_for(".list_users", page=page + 1, _external=True)
+            }
+
+        resp = json_util.dumps({
+            "users": users, 
+            "_links": links
+        })
+            
+        return Response(response=resp, status=200, mimetype="application/json")
+        
     except Exception as e: 
         return Response(response="Server error: " + str(e), status=400)
     
